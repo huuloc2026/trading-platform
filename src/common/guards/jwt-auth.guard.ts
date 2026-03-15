@@ -22,8 +22,9 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return super.canActivate(context);
   }
 
-  handleRequest(err, user, info) {
+handleRequest(err, user, info) {
     if (err || !user) {
+      console.log('JWT Error info:', info?.message); // Nó sẽ báo "jwt expired" hoặc "invalid signature"
       throw err || new UnauthorizedException('Authentication required');
     }
     return user;

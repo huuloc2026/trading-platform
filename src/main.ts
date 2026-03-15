@@ -78,15 +78,7 @@ async function bootstrap() {
       },
     }));
 
-    // ==================== GLOBAL FILTERS ====================
 
-    // Có thể thêm global filters ở đây
-    // app.useGlobalFilters(new HttpExceptionFilter());
-
-    // ==================== GLOBAL GUARDS ====================
-
-    // Có thể thêm global guards ở đây
-    // app.useGlobalGuards(new RolesGuard());
 
     // ==================== API VERSIONING ====================
 
@@ -180,7 +172,7 @@ async function bootstrap() {
             description: 'Enter JWT token',
             in: 'header',
           },
-          'JWT-auth',
+          'bearer',
         )
         .addBasicAuth(
           {
