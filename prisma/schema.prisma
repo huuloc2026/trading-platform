@@ -5,7 +5,6 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  
 }
 
 enum Plan {
@@ -36,17 +35,52 @@ model Organization {
 }
 
 model User {
-  id           String    @id @default(uuid())
-  email        String    @unique
-  passwordHash String    @map("password_hash")
-  role         Role      @default(RESEARCHER)
-  organization Organization @relation(fields: [orgId], references: [id])
-  orgId        String    @map("org_id")
-  strategies   Strategy[]
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
+  id                String    @id @default(uuid())
+  email             String    @unique
+  passwordHash      String    @map("password_hash")
+  role              Role      @default(RESEARCHER)
+  fullName          String?   @map("full_name")
+  isActive          Boolean   @default(true) @map("is_active")
+  lastLoginAt       DateTime? @map("last_login_at")
+  passwordChangedAt DateTime? @map("password_changed_at")
+  
+  // Relations
+  organization      Organization @relation(fields: [orgId], references: [id])
+  orgId             String       @map("org_id")
+  strategies        Strategy[]
+  refreshTokens     RefreshToken[]
+  passwordResets    PasswordReset[]
+  
+  // Timestamps
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
 
   @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime @map("expires_at")
+  revoked   Boolean  @default(false)
+  revokedAt DateTime? @map("revoked_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("refresh_tokens")
+}
+
+model PasswordReset {
+  id        String   @id @default(uuid())
+  userId    String   @unique @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("password_resets")
 }
 
 model Strategy {
@@ -71,7 +105,7 @@ model BacktestResult {
   sharpeRatio  Float    @map("sharpe_ratio")
   maxDrawdown  Float    @map("max_drawdown")
   totalReturn  Float    @map("total_return")
-  pnlSeries    Json     @map("pnl_series") // [{date, value}]
+  pnlSeries    Json     @map("pnl_series")
   logs         String?
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")

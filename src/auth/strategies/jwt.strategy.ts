@@ -3,28 +3,35 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PrismaService } from '../../prisma/prisma.service';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private prisma: PrismaService,
-    private configService: ConfigService,
-  ) {
+  constructor(private prisma: PrismaService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: configService.getOrThrow<string>('JWT_SECRET'),
+      secretOrKey: process.env.JWT_SECRET || 'your-secret-key',
+      ignoreExpiration: false,
     });
   }
 
   async validate(payload: JwtPayload) {
     const user = await this.prisma.user.findUnique({
       where: { id: payload.sub },
+      include: {
+        organization: true,
+      },
     });
 
     if (!user) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('User not found');
     }
 
-    return user;
+    if (!user.isActive) {
+      throw new UnauthorizedException('User is inactive');
+    }
+
+    // Loại bỏ password hash khỏi response
+    const { passwordHash, ...result } = user;
+    return result;
   }
 }
