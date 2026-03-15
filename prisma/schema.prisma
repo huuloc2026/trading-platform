@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  
+}
+
+enum Plan {
+  FREE
+  PRO
+}
+
+enum Role {
+  ADMIN
+  RESEARCHER
+}
+
+enum StrategyStatus {
+  DRAFT
+  BACKTESTING
+  COMPLETED
+}
+
+model Organization {
+  id        String    @id @default(uuid())
+  name      String
+  plan      Plan      @default(FREE)
+  users     User[]
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  @@map("organizations")
+}
+
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  role         Role      @default(RESEARCHER)
+  organization Organization @relation(fields: [orgId], references: [id])
+  orgId        String    @map("org_id")
+  strategies   Strategy[]
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model Strategy {
+  id          String         @id @default(uuid())
+  name        String
+  description String?
+  filePath    String         @map("file_path")
+  user        User           @relation(fields: [userId], references: [id])
+  userId      String         @map("user_id")
+  status      StrategyStatus @default(DRAFT)
+  backtestResults BacktestResult[]
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+
+  @@map("strategies")
+}
+
+model BacktestResult {
+  id           String   @id @default(uuid())
+  strategy     Strategy @relation(fields: [strategyId], references: [id])
+  strategyId   String   @map("strategy_id")
+  sharpeRatio  Float    @map("sharpe_ratio")
+  maxDrawdown  Float    @map("max_drawdown")
+  totalReturn  Float    @map("total_return")
+  pnlSeries    Json     @map("pnl_series") // [{date, value}]
+  logs         String?
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("backtest_results")
+}
