@@ -70,7 +70,7 @@ A full-stack trading platform for backtesting trading strategies with role-based
 
 ### 1. Clone the repository
 ```bash
-git clone <repository-url>
+git clone https://github.com/huuloc2026/trading-platform
 cd trading-platform
 ```
 
@@ -288,7 +288,7 @@ This project is licensed under the MIT License.
 
 ## 👥 Authors
 
-- Your Name - Initial work
+- Jake Onyx - Initial work
 
 ## 🙏 Acknowledgments
 
@@ -299,7 +299,7 @@ This project is licensed under the MIT License.
 
 ## 📧 Contact
 
-For any questions or support, please email: your-email@example.com
+For any questions or support, please email: huuloc2026@gmail.com
 
 ---
 
