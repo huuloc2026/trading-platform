@@ -8,10 +8,14 @@ import { UsersModule } from './users/users.module';
 import { StrategiesModule } from './strategies/strategies.module';
 
 import { RolesGuard } from './common/guards/roles.guard';
+import { ConfigModule } from '@nestjs/config';
 
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     PrismaModule,
     AuthModule,
     OrganizationsModule,

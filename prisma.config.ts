@@ -9,6 +9,7 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
+    // Thêm dấu chấm than (!) ở cuối để báo TS rằng biến này không undefined
+    url: process.env["DATABASE_URL"]!, 
   },
 });
